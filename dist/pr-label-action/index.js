@@ -32631,28 +32631,41 @@ async function run() {
             return;
         }
         // El formato es: name[:desc][:color], ejemplo: type:feat:#cccccc
-        // Queremos conservar name o name:desc, ignorando el color
-        const newLabels = labels
+        // Queremos conservar name o name:desc, ignorando el color, pero loguear el color para depuración
+        const labelColorPairs = labels
             .split(",")
             .map((l) => l.trim())
             .filter(Boolean)
             .map((l) => {
             const parts = l.split(":");
             if (parts.length === 1) {
-                return parts[0];
+                return { label: parts[0] };
             }
-            else if (parts.length >= 2) {
-                // Si el primer valor después de ':' empieza con #, es color, solo usar el nombre
+            else if (parts.length === 2) {
                 if (parts[1].startsWith("#")) {
-                    return parts[0];
+                    return { label: parts[0], color: parts[1] };
                 }
                 else {
-                    return `${parts[0]}:${parts[1]}`;
+                    return { label: `${parts[0]}:${parts[1]}` };
                 }
+            }
+            else if (parts.length === 3) {
+                // name:desc:color
+                return { label: `${parts[0]}:${parts[1]}`, color: parts[2] };
             }
             return undefined;
         })
-            .filter((l) => typeof l === "string" && !!l);
+            .filter((l) => !!l && !!l.label);
+        // Imprimir los labels y colores detectados
+        for (const pair of labelColorPairs) {
+            if (pair.color) {
+                core.info(`Etiqueta sugerida: '${pair.label}' con color: ${pair.color}`);
+            }
+            else {
+                core.info(`Etiqueta sugerida: '${pair.label}' sin color`);
+            }
+        }
+        const newLabels = labelColorPairs.map((pair) => pair.label);
         if (newLabels.length === 0) {
             core.info("No hay etiquetas sugeridas.");
             return;
