@@ -35,6 +35,7 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
+          git remote set-url origin https://x-access-token:${{ secrets.TOKEN_GITHUB }}@github.com/Maik3345/projex-github-actions.git
           git tag -f v${{ steps.version.outputs.version }}
           git push origin v${{ steps.version.outputs.version }} --force
           # Tag mayor para always latest v1
