@@ -5,8 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "npm run build:actions",
-    "build:actions": "for config in src/**/tsconfig.json; do tsc -p \"$config\"; done",
+  "build": "for f in src/*/index.ts; do ncc build \"$f\" -o \"dist/$(basename $(dirname $f))\"; done",
     "prepare": "npx husky"
   },
   "files": [
@@ -17,6 +16,7 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@types/node": "^20.9.0",
+    "@vercel/ncc": "^0.38.3",
     "husky": "^9.1.7",
     "typescript": "^5.0.0"
   },
