@@ -41,6 +41,9 @@ jobs:
       - name: "🧹 Reset changes"
         run: git reset --hard HEAD
 
+      - name: 🛠️ Build project (GENERATE NEW dist/)
+        run: npm run build
+
       - name: 🚀 Projex Release
         uses: ./.github/actions/projex-release
         env:
