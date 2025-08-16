@@ -1,21 +1,20 @@
 name: Release GitHub Action
 
 on:
-
   push:
     branches:
       - main
     paths:
-      - 'src/**'
-      - 'package.json'
-      - 'action.yml'
+      - "src/**"
+      - "package.json"
+      - "action.yml"
 
   workflow_dispatch:
     inputs:
       release_type:
-        description: 'Tipo de release (opcional)'
+        description: "Tipo de release (opcional)"
         required: false
-        default: 'patch'
+        default: "patch"
 
 jobs:
   release:
@@ -27,12 +26,19 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install pnpm
         run: npm install -g pnpm
+
       - name: Install dependencies
         run: pnpm install
+
+      - name: Install projex globally
+        run: npm install -g projex
+
+      - name: Pre-release version bump (projex)
+        run: projex git release stable --yes --no-deploy --no-push --no-check-release --no-tag
 
       - name: Build
         run: npm run build
