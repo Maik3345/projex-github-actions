@@ -1,6 +1,7 @@
 name: Release GitHub Action
 
 on:
+
   push:
     branches:
       - main
@@ -8,6 +9,13 @@ on:
       - 'src/**'
       - 'package.json'
       - 'action.yml'
+
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Tipo de release (opcional)'
+        required: false
+        default: 'patch'
 
 jobs:
   release:
