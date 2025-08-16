@@ -1,6 +1,6 @@
 {
   "name": "projex-github-actions",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Colección de GitHub Actions personalizadas en TypeScript para automatización avanzada.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
