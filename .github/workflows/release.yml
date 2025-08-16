@@ -37,6 +37,11 @@ jobs:
       - name: Install projex globally
         run: npm install -g projex
 
+      - name: "👤 Set git user from last commit"
+        run: |
+          git config --global user.name "$(git log -1 --pretty=format:'%an')"
+          git config --global user.email "$(git log -1 --pretty=format:'%ae')"
+
       - name: Get release version (projex)
         id: version
         run: |
