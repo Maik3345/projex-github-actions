@@ -2,13 +2,6 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { execSync } from "child_process";
 
-function randomColor(): string {
-  // Genera un color hexadecimal aleatorio
-  return `#${Math.floor(Math.random() * 0xffffff)
-    .toString(16)
-    .padStart(6, "0")}`;
-}
-
 async function run() {
   try {
     const prNumber = core.getInput("pr_number", { required: true });
@@ -28,7 +21,9 @@ async function run() {
       try {
         execSync("npm install -g projex", { stdio: "inherit" });
       } catch (e) {
-        core.setFailed("No se pudo instalar projex CLI. Asegúrate de que npm esté disponible.");
+        core.setFailed(
+          "No se pudo instalar projex CLI. Asegúrate de que npm esté disponible."
+        );
         return;
       }
     }
@@ -36,9 +31,12 @@ async function run() {
     // Sugerir etiquetas usando el CLI de projex
     let labels = "";
     try {
-      labels = execSync("projex pull-request labels suggest --format csv", {
-        encoding: "utf-8",
-      }).trim();
+      labels = execSync(
+        "projex pull-request labels suggest --colors  --format csv",
+        {
+          encoding: "utf-8",
+        }
+      ).trim();
     } catch (e) {
       core.warning("No se pudieron sugerir etiquetas automáticamente.");
     }
@@ -46,10 +44,28 @@ async function run() {
       core.info("No hay etiquetas sugeridas.");
       return;
     }
+    // El formato es: name[:desc][:color], ejemplo: type:feat:#cccccc
+    // Queremos conservar name o name:desc, ignorando el color
     const newLabels = labels
       .split(",")
       .map((l) => l.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .map((l) => {
+        const parts = l.split(":");
+        if (parts.length === 1) {
+          return parts[0];
+        } else if (parts.length >= 2) {
+          // Si el primer valor después de ':' empieza con #, es color, solo usar el nombre
+          if (parts[1].startsWith("#")) {
+            return parts[0];
+          } else {
+            return `${parts[0]}:${parts[1]}`;
+          }
+        }
+        return undefined;
+      })
+      .filter((l) => typeof l === "string" && !!l);
+
     if (newLabels.length === 0) {
       core.info("No hay etiquetas sugeridas.");
       return;
@@ -83,25 +99,25 @@ async function run() {
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             issue_number: Number(prNumber),
-            labels: [label],
+            labels: [label as string],
           });
         } catch (err: any) {
-          // Si el label no existe, créalo y vuelve a intentar
+          // Si el label no existe, créalo y vuelve a intentar (sin color)
           if (err.status === 404) {
             core.info(`Label '${label}' no existe, creándolo...`);
             try {
               await octokit.rest.issues.createLabel({
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
-                name: label,
-                color: randomColor().replace("#", ""),
+                name: label as string,
+                // No se pasa color, GitHub asigna uno por defecto
                 description: "Auto-created by workflow",
               });
               await octokit.rest.issues.addLabels({
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
                 issue_number: Number(prNumber),
-                labels: [label],
+                labels: [label as string],
               });
             } catch (e) {
               core.warning(
