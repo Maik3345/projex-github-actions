@@ -37,26 +37,23 @@ jobs:
       - name: Install projex globally
         run: npm install -g projex
 
+      - name: Get release version (projex)
+        id: version
+        run: |
+          VERSION=$(projex git release stable --get-only-version-number)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Pre-release version bump (projex)
         run: projex git release stable --yes --no-deploy --no-push --no-check-release --no-tag
 
       - name: Build
         run: npm run build
 
-      - name: Get version from package.json
-        id: version
-        run: echo "version=$(node -p 'require(`./package.json`).version')" >> $GITHUB_OUTPUT
+      - name: "🧹 Reset changes"
+        run: git reset --hard HEAD
 
-      - name: Create or update tag
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git tag -f v${{ steps.version.outputs.version }}
-          git push origin v${{ steps.version.outputs.version }} --force
-          # Tag mayor para always latest v1
-          V_MAJOR=$(echo ${{ steps.version.outputs.version }} | cut -d. -f1)
-          git tag -f v$V_MAJOR
-          git push origin v$V_MAJOR --force
+      - name: "🏁 Release stable and push (post-publish)"
+        run: projex git release stable --yes
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
