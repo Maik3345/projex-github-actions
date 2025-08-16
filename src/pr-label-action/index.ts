@@ -20,6 +20,19 @@ async function run() {
     }
     const octokit = github.getOctokit(githubToken);
 
+    // Instalar projex CLI si no está presente
+    try {
+      execSync("projex --version", { stdio: "ignore" });
+    } catch {
+      core.info("Instalando projex CLI globalmente...");
+      try {
+        execSync("npm install -g projex", { stdio: "inherit" });
+      } catch (e) {
+        core.setFailed("No se pudo instalar projex CLI. Asegúrate de que npm esté disponible.");
+        return;
+      }
+    }
+
     // Sugerir etiquetas usando el CLI de projex
     let labels = "";
     try {
