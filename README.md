@@ -39,7 +39,7 @@ on:
 
 jobs:
   release:
-    uses: Maik3345/projex-github-actions/.github/workflows/reusable/release.yml@main
+  uses: Maik3345/projex-github-actions/.github/workflows/release.yml@main
     secrets:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
