@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run build:actions",
+    "build:actions": "for config in src/**/tsconfig.json; do tsc -p \"$config\"; done",
     "prepare": "npx husky"
   },
   "files": [
