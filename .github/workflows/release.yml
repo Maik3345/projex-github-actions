@@ -4,6 +4,11 @@ description: "Reusable workflow to perform a projex release and create a GitHub 
 
 on:
   workflow_call:
+    inputs:
+      build_command:
+        description: 'Comando para construir el proyecto después del release'
+        required: false
+        type: string
 
 jobs:
   release:
@@ -26,8 +31,13 @@ jobs:
           VERSION=$(projex git release stable --get-only-version-number)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+
       - name: "🚀 Publicar release estable y hacer push"
         run: projex git release stable --yes
+
+      - name: "🏗️ Build after release"
+        if: ${{ inputs.build_command != '' }}
+        run: ${{ inputs.build_command }}
 
       - name: "🏷️ Crear o actualizar tag mayor flotante"
         run: |
