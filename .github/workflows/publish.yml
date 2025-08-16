@@ -28,6 +28,11 @@ jobs:
 
       - name: 📥 Install dependencies
         run: pnpm install
+      - name: "📦 Instalar projex globalmente"
+        run: npm install -g projex
+
+      - name: Pre-release version bump (projex)
+        run: projex git release stable --yes --no-deploy --no-push --no-check-release --no-tag
 
       - name: 🛠️ Build project
         run: npm run build
