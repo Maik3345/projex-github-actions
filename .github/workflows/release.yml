@@ -4,9 +4,6 @@ description: "Reusable workflow to perform a projex release and create a GitHub 
 
 on:
   workflow_call:
-    secrets:
-      GITHUB_TOKEN:
-        required: true
 
 jobs:
   release:

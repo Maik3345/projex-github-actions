@@ -35,5 +35,3 @@ jobs:
   release:
     needs: build
     uses: Maik3345/projex-github-actions/.github/workflows/release.yml@main
-    secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
