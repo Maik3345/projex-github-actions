@@ -1,0 +1,39 @@
+name: 🚀 Publish & Release Workflow
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/**"
+      - "package.json"
+      - "action.yml"
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗️ Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 📦 Install pnpm
+        run: npm install -g pnpm
+
+      - name: 📥 Install dependencies
+        run: pnpm install
+
+      - name: 🛠️ Build project
+        run: npm run build
+
+  release:
+    needs: build
+    uses: Maik3345/projex-github-actions/.github/workflows/reusable/release.yml@main
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

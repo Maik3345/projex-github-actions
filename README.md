@@ -25,6 +25,28 @@ Debes crear el secreto `TOKEN_GITHUB` en la configuración de tu repositorio con
     github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+
+
+## Reutilizar workflow de release en otros repositorios
+
+Puedes reutilizar el workflow de release genérico en otros repositorios usando `workflow_call`:
+
+```yaml
+name: Release usando projex reusable
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    uses: Maik3345/projex-github-actions/.github/workflows/reusable/release.yml@main
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Esto ejecutará el proceso de release usando los pasos estándar de projex. Asegúrate de tener permisos de acceso al repositorio y el secreto `GITHUB_TOKEN` configurado.
+
+---
 ## Versionado
 
 - El tag `v1` siempre apuntará a la última versión mayor estable.
