@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: 🛎️ Checkout repository
@@ -28,8 +28,6 @@ jobs:
 
       - name: 📥 Install dependencies
         run: pnpm install
-      - name: "📦 Instalar projex globalmente"
-        run: npm install -g projex
 
       - name: Pre-release version bump (projex)
         run: projex git release stable --yes --no-deploy --no-push --no-check-release --no-tag
@@ -37,8 +35,10 @@ jobs:
       - name: 🛠️ Build project
         run: npm run build
 
-  release:
-    needs: build
-    uses: Maik3345/projex-github-actions/.github/workflows/release.yml@main
-    with:
-      build_command: npm run build
+      - name: "🧹 Reset changes"
+        run: git reset --hard HEAD
+
+      - name: 🚀 Projex Release
+        uses: ./.github/actions/projex-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

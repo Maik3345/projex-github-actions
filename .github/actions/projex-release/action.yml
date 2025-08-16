@@ -1,0 +1,45 @@
+name: 'Projex Release Action'
+description: 'Composite action para release y GitHub Release usando projex.'
+runs:
+  using: 'composite'
+  steps:
+    - name: '📦 Instalar projex globalmente si no existe'
+      run: |
+        if ! command -v projex >/dev/null 2>&1; then
+          echo "Instalando projex..."
+          npm install -g projex
+        else
+          echo "projex ya está instalado."
+        fi
+      shell: bash
+
+    - name: '👤 Configurar usuario de Git según último commit'
+      run: |
+        git config --global user.name "$(git log -1 --pretty=format:'%an')"
+        git config --global user.email "$(git log -1 --pretty=format:'%ae')"
+      shell: bash
+
+    - name: '🔖 Obtener versión de release (projex)'
+      id: version
+      run: |
+        VERSION=$(projex git release stable --get-only-version-number)
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: '🚀 Publicar release estable y hacer push'
+      run: projex git release stable --yes
+      shell: bash
+
+    - name: '🏷️ Crear o actualizar tag mayor flotante'
+      run: |
+        V_MAJOR=$(echo ${{ steps.version.outputs.version }} | cut -d. -f1)
+        git tag -f v$V_MAJOR
+        git push origin v$V_MAJOR --force
+      shell: bash
+
+    - name: '🏷️ Crear GitHub Release'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ steps.version.outputs.version }}
+      env:
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}

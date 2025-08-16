@@ -2,15 +2,16 @@
 
 Colección de GitHub Actions personalizadas en TypeScript para automatización avanzada.
 
+
 ## Publicación automática de versiones
 
-Cada vez que hagas push a `main` y cambie el código fuente, el workflow `.github/workflows/release.yml`:
+Cada vez que hagas push a `main` y cambie el código fuente, el workflow `.github/workflows/publish.yml`:
 - Compilará el proyecto
 - Creará/actualizará los tags `vX.Y.Z` y `vX` según la versión de `package.json`
 - Publicará un release en GitHub
 
 **Importante:**
-Debes crear el secreto `TOKEN_GITHUB` en la configuración de tu repositorio con un token de acceso personal (PAT) con permisos de `repo`.
+Asegúrate de tener el secreto `GITHUB_TOKEN` configurado (el que provee GitHub Actions por defecto).
 
 ## Uso de una action desde otro repositorio
 
@@ -26,24 +27,21 @@ Debes crear el secreto `TOKEN_GITHUB` en la configuración de tu repositorio con
 
 
 
-## Reutilizar workflow de release en otros repositorios
+on:
+jobs:
 
-Puedes reutilizar el workflow de release genérico en otros repositorios usando `workflow_call`:
+## Usar la composite action de release
+
+Puedes usar la composite action de release en cualquier workflow así:
 
 ```yaml
-name: Release usando projex reusable
-
-on:
-  workflow_dispatch:
-
-jobs:
-  release:
-  uses: Maik3345/projex-github-actions/.github/workflows/release.yml@main
-    secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+- name: 🚀 Projex Release
+  uses: Maik3345/projex-github-actions/.github/actions/projex-release@v1
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-Esto ejecutará el proceso de release usando los pasos estándar de projex. Asegúrate de tener permisos de acceso al repositorio y el secreto `GITHUB_TOKEN` configurado.
+Esto ejecutará el proceso de release usando los pasos estándar de projex. Puedes agregar tus pasos de build antes de llamar a la action.
 
 ---
 ## Versionado
@@ -52,4 +50,4 @@ Esto ejecutará el proceso de release usando los pasos estándar de projex. Aseg
 - Para usar una versión específica, usa `@v1.0.0` o el tag correspondiente.
 
 ---
-¿Dudas? Consulta el workflow de release o abre un issue.
+¿Dudas? Consulta la composite action o abre un issue.
