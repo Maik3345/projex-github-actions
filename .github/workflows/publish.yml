@@ -7,7 +7,7 @@ on:
     paths:
       - "src/**"
       - "package.json"
-      - "action.yml"
+      - "publish.yml"
 
   workflow_dispatch:
 
