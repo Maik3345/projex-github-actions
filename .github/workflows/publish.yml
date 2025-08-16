@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  publish_and_release:
     runs-on: ubuntu-latest
     steps:
       - name: 🛎️ Checkout repository
@@ -37,6 +37,8 @@ jobs:
       - name: 🛠️ Build project
         run: npm run build
 
-  release:
-    needs: build
-    uses: Maik3345/projex-github-actions/.github/workflows/release.yml@main
+      - name: "🧹 Reset changes"
+        run: git reset --hard HEAD
+
+      - name: 🚀 Run release workflow
+        uses: Maik3345/projex-github-actions/.github/workflows/release.yml@main
