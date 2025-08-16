@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  release:
+  build-release:
     runs-on: ubuntu-latest
     steps:
       - name: 🛎️ Checkout repository
@@ -28,6 +28,9 @@ jobs:
 
       - name: 📥 Install dependencies
         run: pnpm install
+
+      - name: "📦 Install projex globally"
+        run: npm install -g projex
 
       - name: Pre-release version bump (projex)
         run: projex git release stable --yes --no-deploy --no-push --no-check-release --no-tag
