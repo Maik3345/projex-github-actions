@@ -1,32 +1,44 @@
-import * as core from '@actions/core';
-import * as github from '@actions/github';
-import { execSync } from 'child_process';
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+import { execSync } from "child_process";
 
 function randomColor(): string {
   // Genera un color hexadecimal aleatorio
-  return `#${Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')}`;
+  return `#${Math.floor(Math.random() * 0xffffff)
+    .toString(16)
+    .padStart(6, "0")}`;
 }
 
 async function run() {
   try {
-    const prNumber = core.getInput('pr_number', { required: true });
-    const githubToken = core.getInput('github_token', { required: true });
+    const prNumber = core.getInput("pr_number", { required: true });
+    const githubToken = process.env.GITHUB_TOKEN;
+    if (!githubToken) {
+      throw new Error(
+        "GITHUB_TOKEN environment variable is required. Make sure to pass secrets.GITHUB_TOKEN in your workflow."
+      );
+    }
     const octokit = github.getOctokit(githubToken);
 
     // Sugerir etiquetas usando el CLI de projex
-    let labels = '';
+    let labels = "";
     try {
-      labels = execSync('projex pull-request labels suggest --format csv', { encoding: 'utf-8' }).trim();
+      labels = execSync("projex pull-request labels suggest --format csv", {
+        encoding: "utf-8",
+      }).trim();
     } catch (e) {
-      core.warning('No se pudieron sugerir etiquetas automáticamente.');
+      core.warning("No se pudieron sugerir etiquetas automáticamente.");
     }
-    if (!labels || labels.includes('not found')) {
-      core.info('No hay etiquetas sugeridas.');
+    if (!labels || labels.includes("not found")) {
+      core.info("No hay etiquetas sugeridas.");
       return;
     }
-    const newLabels = labels.split(',').map(l => l.trim()).filter(Boolean);
+    const newLabels = labels
+      .split(",")
+      .map((l) => l.trim())
+      .filter(Boolean);
     if (newLabels.length === 0) {
-      core.info('No hay etiquetas sugeridas.');
+      core.info("No hay etiquetas sugeridas.");
       return;
     }
 
@@ -69,8 +81,8 @@ async function run() {
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
                 name: label,
-                color: randomColor().replace('#', ''),
-                description: 'Auto-created by workflow',
+                color: randomColor().replace("#", ""),
+                description: "Auto-created by workflow",
               });
               await octokit.rest.issues.addLabels({
                 owner: github.context.repo.owner,
@@ -79,7 +91,9 @@ async function run() {
                 labels: [label],
               });
             } catch (e) {
-              core.warning(`No se pudo crear o asignar el label '${label}': ${e}`);
+              core.warning(
+                `No se pudo crear o asignar el label '${label}': ${e}`
+              );
             }
           } else {
             core.warning(`No se pudo asignar el label '${label}': ${err}`);
@@ -87,7 +101,7 @@ async function run() {
         }
       }
     }
-    core.info(`Etiquetas sincronizadas: ${newLabels.join(', ')}`);
+    core.info(`Etiquetas sincronizadas: ${newLabels.join(", ")}`);
   } catch (error: any) {
     core.setFailed(error.message);
   }

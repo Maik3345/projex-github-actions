@@ -22,7 +22,6 @@ Debes crear el secreto `TOKEN_GITHUB` en la configuración de tu repositorio con
   uses: Maik3345/projex-github-actions/src/pr-label-action@v1
   with:
     pr_number: ${{ github.event.pull_request.number }}
-    github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 
