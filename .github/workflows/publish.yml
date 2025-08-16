@@ -42,7 +42,7 @@ jobs:
         run: git reset --hard HEAD
 
       - name: 🛠️ Build project (GENERATE NEW dist/)
-        run: npm run build
+        run: npm run build && git add .
 
       - name: 🚀 Projex Release
         uses: ./.github/actions/projex-release

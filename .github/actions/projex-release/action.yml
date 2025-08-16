@@ -27,7 +27,7 @@ runs:
       shell: bash
 
     - name: '🚀 Publicar release estable y hacer push'
-      run: projex git release stable --yes
+      run: projex git release stable --yes --no-check-release
       shell: bash
 
     - name: '🏷️ Crear o actualizar tag mayor flotante'
