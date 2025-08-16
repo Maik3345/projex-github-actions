@@ -29,6 +29,16 @@ jobs:
       - name: "🚀 Publicar release estable y hacer push"
         run: projex git release stable --yes
 
+      - name: "🏷️ Crear o actualizar tag mayor flotante"
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag -f v${{ steps.version.outputs.version }}
+          git push origin v${{ steps.version.outputs.version }} --force
+          V_MAJOR=$(echo ${{ steps.version.outputs.version }} | cut -d. -f1)
+          git tag -f v$V_MAJOR
+          git push origin v$V_MAJOR --force
+
       - name: "🏷️ Crear GitHub Release"
         uses: softprops/action-gh-release@v2
         with:
