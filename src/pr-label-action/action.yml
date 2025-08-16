@@ -1,0 +1,12 @@
+name: 'PR Label Action'
+description: 'Sincroniza etiquetas sugeridas en un Pull Request y crea etiquetas si no existen.'
+inputs:
+  pr_number:
+    description: 'Pull request number'
+    required: true
+  github_token:
+    description: 'GitHub token'
+    required: true
+runs:
+  using: 'node16'
+  main: 'dist/pr-label-action/index.js'
