@@ -32704,9 +32704,10 @@ async function run() {
                         ...(color ? { color: color.replace("#", "") } : {}),
                         description: "Auto-created by workflow",
                     });
-                    core.info(`Label '${label}' creado con color: ${color ?? 'default'}`);
+                    core.info(`Label '${label}' creado con color: ${color ?? "default"}`);
                 }
                 catch (err) {
+                    core.info(`No se pudo crear el label '${label}': ${err}`);
                     // Si ya existe, actualizar color y descripción
                     if (err.status === 422) {
                         try {
@@ -32717,7 +32718,7 @@ async function run() {
                                 ...(color ? { color: color.replace("#", "") } : {}),
                                 description: "Auto-created by workflow",
                             });
-                            core.info(`Label '${label}' actualizado con color: ${color ?? 'default'}`);
+                            core.info(`Label '${label}' actualizado con color: ${color ?? "default"}`);
                         }
                         catch (e) {
                             core.warning(`No se pudo actualizar el label '${label}': ${e}`);
