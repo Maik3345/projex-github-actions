@@ -161,7 +161,7 @@ async function run() {
         }
       }
     }
-    core.info(`Etiquetas sincronizadas: ${newLabels.join(", ")}`);
+    core.info(`Etiquetas sincronizadas en el repositorio: ${newLabels.join(", ")}`);
   } catch (error: any) {
     core.setFailed(error.message);
   }
