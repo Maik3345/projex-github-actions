@@ -32700,6 +32700,23 @@ async function run() {
                         issue_number: Number(prNumber),
                         labels: [label],
                     });
+                    // Actualizar color y descripción si el label ya existe
+                    const color = labelColorPairs.find((pair) => pair.label === label)?.color;
+                    if (color) {
+                        try {
+                            await octokit.rest.issues.updateLabel({
+                                owner: github.context.repo.owner,
+                                repo: github.context.repo.repo,
+                                name: label,
+                                color: color.replace("#", ""),
+                                description: "Auto-created by workflow",
+                            });
+                            core.info(`Label '${label}' actualizado con color: ${color}`);
+                        }
+                        catch (e) {
+                            core.warning(`No se pudo actualizar el label '${label}': ${e}`);
+                        }
+                    }
                 }
                 catch (err) {
                     // Si el label no existe, créalo y vuelve a intentar (usando color si está disponible)
