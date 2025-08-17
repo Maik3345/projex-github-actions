@@ -32749,7 +32749,7 @@ async function run() {
                 }
             }
         }
-        core.info(`Etiquetas sincronizadas: ${newLabels.join(", ")}`);
+        core.info(`Etiquetas sincronizadas en el repositorio: ${newLabels.join(", ")}`);
     }
     catch (error) {
         core.setFailed(error.message);
