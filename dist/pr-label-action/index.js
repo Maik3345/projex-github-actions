@@ -32702,15 +32702,17 @@ async function run() {
                     });
                 }
                 catch (err) {
-                    // Si el label no existe, créalo y vuelve a intentar (sin color)
+                    // Si el label no existe, créalo y vuelve a intentar (usando color si está disponible)
                     if (err.status === 404) {
                         core.info(`Label '${label}' no existe, creándolo...`);
                         try {
+                            // Buscar el color correspondiente
+                            const color = labelColorPairs.find((pair) => pair.label === label)?.color;
                             await octokit.rest.issues.createLabel({
                                 owner: github.context.repo.owner,
                                 repo: github.context.repo.repo,
                                 name: label,
-                                // No se pasa color, GitHub asigna uno por defecto
+                                ...(color ? { color: color.replace("#", "") } : {}),
                                 description: "Auto-created by workflow",
                             });
                             await octokit.rest.issues.addLabels({
