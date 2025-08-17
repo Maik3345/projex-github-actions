@@ -108,48 +108,48 @@ async function run() {
       }
     }
     for (const label of newLabels) {
-      if (!currentLabels.includes(label)) {
-        // Buscar el color correspondiente
-        const color = labelColorPairs.find((pair) => pair.label === label)?.color;
-        // Consultar si el label existe
-        let labelExists = false;
-        try {
-          await octokit.rest.issues.getLabel({
+      // Buscar el color correspondiente
+      const color = labelColorPairs.find((pair) => pair.label === label)?.color;
+      // Consultar si el label existe
+      let labelExists = false;
+      try {
+        await octokit.rest.issues.getLabel({
+          owner: github.context.repo.owner,
+          repo: github.context.repo.repo,
+          name: label as string,
+        });
+        labelExists = true;
+      } catch (err: any) {
+        if (err.status !== 404) {
+          core.warning(`Error consultando el label '${label}': ${err}`);
+        }
+      }
+      // Si existe, actualizar color y descripción; si no, crearlo
+      try {
+        if (labelExists) {
+          await octokit.rest.issues.updateLabel({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
             name: label as string,
+            ...(color ? { color: color.replace("#", "") } : {}),
+            description: "Auto-created by workflow",
           });
-          labelExists = true;
-        } catch (err: any) {
-          if (err.status !== 404) {
-            core.warning(`Error consultando el label '${label}': ${err}`);
-          }
+          core.info(`Label '${label}' actualizado con color: ${color ?? 'default'}`);
+        } else {
+          await octokit.rest.issues.createLabel({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            name: label as string,
+            ...(color ? { color: color.replace("#", "") } : {}),
+            description: "Auto-created by workflow",
+          });
+          core.info(`Label '${label}' creado con color: ${color ?? 'default'}`);
         }
-        // Si existe, actualizar color y descripción; si no, crearlo
-        try {
-          if (labelExists) {
-            await octokit.rest.issues.updateLabel({
-              owner: github.context.repo.owner,
-              repo: github.context.repo.repo,
-              name: label as string,
-              ...(color ? { color: color.replace("#", "") } : {}),
-              description: "Auto-created by workflow",
-            });
-            core.info(`Label '${label}' actualizado con color: ${color ?? 'default'}`);
-          } else {
-            await octokit.rest.issues.createLabel({
-              owner: github.context.repo.owner,
-              repo: github.context.repo.repo,
-              name: label as string,
-              ...(color ? { color: color.replace("#", "") } : {}),
-              description: "Auto-created by workflow",
-            });
-            core.info(`Label '${label}' creado con color: ${color ?? 'default'}`);
-          }
-        } catch (e) {
-          core.warning(`No se pudo crear/actualizar el label '${label}': ${e}`);
-        }
-        // Finalmente, asignar el label al PR
+      } catch (e) {
+        core.warning(`No se pudo crear/actualizar el label '${label}': ${e}`);
+      }
+      // Asignar el label al PR solo si no está ya asignado
+      if (!currentLabels.includes(label)) {
         try {
           await octokit.rest.issues.addLabels({
             owner: github.context.repo.owner,
