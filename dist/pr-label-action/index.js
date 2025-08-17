@@ -32681,14 +32681,31 @@ async function run() {
         for (const label of currentLabels) {
             if (!newLabels.includes(label)) {
                 try {
-                    await octokit.rest.issues.removeLabel({
+                    // Buscar otros PRs abiertos con este label
+                    const prsWithLabel = await octokit.rest.issues.listForRepo({
                         owner: github.context.repo.owner,
                         repo: github.context.repo.repo,
-                        issue_number: Number(prNumber),
-                        name: label,
+                        state: "open",
+                        labels: label,
+                        per_page: 2, // Solo necesitamos saber si hay más de uno
                     });
+                    const count = prsWithLabel.data.filter((issue) => issue.pull_request && issue.number !== Number(prNumber)).length;
+                    if (count === 0) {
+                        await octokit.rest.issues.removeLabel({
+                            owner: github.context.repo.owner,
+                            repo: github.context.repo.repo,
+                            issue_number: Number(prNumber),
+                            name: label,
+                        });
+                        core.info(`Label '${label}' removido del PR #${prNumber}`);
+                    }
+                    else {
+                        core.info(`Label '${label}' no se remueve porque está en otros PRs abiertos.`);
+                    }
                 }
-                catch { }
+                catch (e) {
+                    core.warning(`No se pudo remover el label '${label}': ${e}`);
+                }
             }
         }
         for (const label of newLabels) {
