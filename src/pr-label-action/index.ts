@@ -71,13 +71,15 @@ async function run() {
     // Imprimir los labels y colores detectados
     for (const pair of labelColorPairs) {
       if (pair.color) {
-        core.info(`Etiqueta sugerida: '${pair.label}' con color: ${pair.color}`);
+        core.info(
+          `Etiqueta sugerida: '${pair.label}' con color: ${pair.color}`
+        );
       } else {
         core.info(`Etiqueta sugerida: '${pair.label}' sin color`);
       }
     }
 
-  const newLabels = labelColorPairs.map((pair) => pair.label);
+    const newLabels = labelColorPairs.map((pair) => pair.label);
 
     if (newLabels.length === 0) {
       core.info("No hay etiquetas sugeridas.");
@@ -108,7 +110,9 @@ async function run() {
     for (const label of newLabels) {
       if (!currentLabels.includes(label)) {
         // Buscar el color correspondiente
-        const color = labelColorPairs.find((pair) => pair.label === label)?.color;
+        const color = labelColorPairs.find(
+          (pair) => pair.label === label
+        )?.color;
         // Primero intenta crear el label (si ya existe, lo actualiza)
         try {
           await octokit.rest.issues.createLabel({
@@ -118,8 +122,9 @@ async function run() {
             ...(color ? { color: color.replace("#", "") } : {}),
             description: "Auto-created by workflow",
           });
-          core.info(`Label '${label}' creado con color: ${color ?? 'default'}`);
+          core.info(`Label '${label}' creado con color: ${color ?? "default"}`);
         } catch (err: any) {
+          core.info(`No se pudo crear el label '${label}': ${err}`);
           // Si ya existe, actualizar color y descripción
           if (err.status === 422) {
             try {
@@ -130,12 +135,16 @@ async function run() {
                 ...(color ? { color: color.replace("#", "") } : {}),
                 description: "Auto-created by workflow",
               });
-              core.info(`Label '${label}' actualizado con color: ${color ?? 'default'}`);
+              core.info(
+                `Label '${label}' actualizado con color: ${color ?? "default"}`
+              );
             } catch (e) {
               core.warning(`No se pudo actualizar el label '${label}': ${e}`);
             }
           } else {
-            core.warning(`No se pudo crear/actualizar el label '${label}': ${err}`);
+            core.warning(
+              `No se pudo crear/actualizar el label '${label}': ${err}`
+            );
           }
         }
         // Finalmente, asignar el label al PR
@@ -151,7 +160,9 @@ async function run() {
         }
       }
     }
-    core.info(`Etiquetas sincronizadas en el repositorio: ${newLabels.join(", ")}`);
+    core.info(
+      `Etiquetas sincronizadas en el repositorio: ${newLabels.join(", ")}`
+    );
   } catch (error: any) {
     core.setFailed(error.message);
   }
