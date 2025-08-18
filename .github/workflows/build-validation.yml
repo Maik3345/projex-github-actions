@@ -1,0 +1,44 @@
+name: Build Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+      - feature/**
+      - hotfix/**
+      - release/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "🔄 Checkout código fuente"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "🟢 Configurar Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: "🏷️ Sincronizar etiquetas del Pull Request"
+        uses: ./src/pr-label-action
+        with:
+          pr_number: ${{ github.event.pull_request.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+
+      - name: "📦 Instalar pnpm"
+        run: npm install -g pnpm
+
+      - name: "📥 Instalar dependencias"
+        run: pnpm install
+
+      - name: "🏗️ Compilar extensión"
+        run: npm run build
+
+      - name: "🧪 Run unit tests"
+        run: npm run test
