@@ -25,7 +25,7 @@ jobs:
           node-version: "20"
 
       - name: "🏷️ Sincronizar etiquetas del Pull Request"
-        uses: ./src/pr-label-action@v1
+        uses: ./src/pr-label-action
         with:
           pr_number: ${{ github.event.pull_request.number }}
         env:
