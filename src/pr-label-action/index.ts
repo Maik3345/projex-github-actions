@@ -98,28 +98,13 @@ async function run() {
     for (const label of currentLabels) {
       if (!newLabels.includes(label)) {
         try {
-          // Buscar otros PRs abiertos con este label
-          const prsWithLabel = await octokit.rest.issues.listForRepo({
+          await octokit.rest.issues.removeLabel({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
-            state: "open",
-            labels: label,
-            per_page: 2, // Solo necesitamos saber si hay más de uno
+            issue_number: Number(prNumber),
+            name: label,
           });
-          const count = prsWithLabel.data.filter(
-            (issue) => issue.pull_request && issue.number !== Number(prNumber)
-          ).length;
-          if (count === 0) {
-            await octokit.rest.issues.removeLabel({
-              owner: github.context.repo.owner,
-              repo: github.context.repo.repo,
-              issue_number: Number(prNumber),
-              name: label,
-            });
-            core.info(`Label '${label}' removido del PR #${prNumber}`);
-          } else {
-            core.info(`Label '${label}' no se remueve porque está en otros PRs abiertos.`);
-          }
+          core.info(`Label '${label}' removido del PR #${prNumber}`);
         } catch (e) {
           core.warning(`No se pudo remover el label '${label}': ${e}`);
         }
@@ -152,7 +137,9 @@ async function run() {
             ...(color ? { color: color.replace("#", "") } : {}),
             description: "Auto-created by workflow",
           });
-          core.info(`Label '${label}' actualizado con color: ${color ?? 'default'}`);
+          core.info(
+            `Label '${label}' actualizado con color: ${color ?? "default"}`
+          );
         } else {
           await octokit.rest.issues.createLabel({
             owner: github.context.repo.owner,
@@ -161,7 +148,7 @@ async function run() {
             ...(color ? { color: color.replace("#", "") } : {}),
             description: "Auto-created by workflow",
           });
-          core.info(`Label '${label}' creado con color: ${color ?? 'default'}`);
+          core.info(`Label '${label}' creado con color: ${color ?? "default"}`);
         }
       } catch (e) {
         core.warning(`No se pudo crear/actualizar el label '${label}': ${e}`);
